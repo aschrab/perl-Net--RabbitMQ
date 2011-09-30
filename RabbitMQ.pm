@@ -4,7 +4,7 @@ require DynaLoader;
 
 use strict;
 use vars qw($VERSION @ISA);
-$VERSION = "0.2.2";
+$VERSION = "0.2.3";
 @ISA = qw/DynaLoader/;
 
 bootstrap Net::RabbitMQ $VERSION ;
@@ -26,8 +26,8 @@ Net::RabbitMQ - interact with RabbitMQ over AMQP using librabbitmq
 =head1 DESCRIPTION
 
 C<Net::RabbitMQ> provides a simple wrapper around the librabbitmq library
-that allows connecting, delcaring exchanges and queues, binding and unbinding
-queues, publising, consuming and receiving events.
+that allows connecting, declaring exchanges and queues, binding and unbinding
+queues, publishing, consuming and receiving events.
 
 Error handling in this module is primarily achieve by Perl_croak (die). You
 should be making good use of eval around these methods to ensure that you
@@ -130,7 +130,7 @@ In array context, this method returns three items: queuename,
 the number of message waiting on the queue, and the number
 of consumers bound to the queue.
 
-=item queue_bind($channel, $queuename, $exchange, $routing_key)
+=item queue_bind($channel, $queuename, $exchange, $routing_key, $arguments)
 
 C<$channel> is a channel that has been opened with C<channel_open>.
 
@@ -138,10 +138,15 @@ C<$queuename> is a previously declared queue, C<$exchange> is a
 previously declared exchange, and C<$routing_key> is the routing
 key that will bind the specified queue to the specified exchange.
 
-=item queue_unbind($channel, $queuename, $exchange, $routing_key)
+C<$arguments> is an optional hash which will be passed to the server.  When
+binding to an exchange of type C<headers>, this can be used to only receive
+messages with the supplied header values.
 
-This is like the C<queue_bind> with respect to arguments.  This command
-unbinds the queue from the exchange.
+=item queue_unbind($channel, $queuename, $exchange, $routing_key, $arguments)
+
+This is like the C<queue_bind> with respect to arguments.  This command unbinds
+the queue from the exchange.  The C<$routing_key> and C<$arguments> must match
+the values supplied when the binding was created.
 
 =item publish($channel, $routing_key, $body, $options, $props)
 
@@ -263,7 +268,7 @@ C<$channel> is a channel that has been opened with C<channel_open>.
 C<$queuename> is the queue to be purged.
 
 C<$no_wait> a boolean specifying if the call should not wait for
-the server to acknowledge the acknoledgement.
+the server to acknowledge the acknowledgement.
 
 =item tx_select($channel)
 
